@@ -4,7 +4,7 @@ package by.hotianovich.CryptoCurrency.models;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "UserRegistration")
+@Table(name = "userregistration")
 public class UserRegistration {
 
     @Id
@@ -15,12 +15,16 @@ public class UserRegistration {
     @Column(name = "user_name")
     private String username;
 
-    @Column(name = "initialPrice")
+    @Column(name = "initialprice")
     private Double initialPrice;
 
-    public UserRegistration(String username, Double initialPrice) {
+    @Column(name = "symbol")
+    private String symbol;
+
+    public UserRegistration(String username, Double initialPrice, String symbol) {
         this.username = username;
         this.initialPrice = initialPrice;
+        this.symbol = symbol;
     }
 
     public UserRegistration() {
@@ -41,5 +45,13 @@ public class UserRegistration {
 
     public void setInitialPrice(Double initialPrice) {
         this.initialPrice = initialPrice;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 }

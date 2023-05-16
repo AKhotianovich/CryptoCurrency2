@@ -61,7 +61,7 @@ public class CryptoCurrencyController {
         CryptoCoin coin = coinRepository.findBySymbol(request.getSymbol());
         if (coin != null) {
             // Сохраняем информацию о регистрации пользователя
-            UserRegistration registrationUser = new UserRegistration(request.getUsername(), coin.getPrice());
+            UserRegistration registrationUser = new UserRegistration(request.getUsername(), coin.getPrice(), coin.getSymbol());
             registrationRepository.save(registrationUser);
             return "UserRegistration successful";
         } else {
@@ -70,7 +70,7 @@ public class CryptoCurrencyController {
         }
     }
 
-    @Scheduled(fixedRate = 6000) // запускаем метод каждую минуту
+    @Scheduled(fixedRate = 60000) // запускаем метод каждую минуту
     public void updateCoinTicker() throws IOException, InterruptedException {
         String url = "https://api.coinlore.net/api/ticker/?id=90,80,48543";
         HttpClient client = HttpClient.newHttpClient();
@@ -87,16 +87,16 @@ public class CryptoCurrencyController {
             int id = rootNode.get(i).get("id").asInt();
             String symbol = rootNode.get(i).get("symbol").asText();
             Double price = rootNode.get(i).get("price_usd").asDouble();
-            CryptoCoin coin1 = new CryptoCoin(id, symbol, price, new Date());
-            coinRepository.save(coin1);
+            CryptoCoin coin = new CryptoCoin(id, symbol, price, new Date());
 
             // Поиск криптовалюты в базе данных
-            CryptoCoin coin = coinRepository.findBySymbol(symbol);
+            CryptoCoin coin1 = coinRepository.findBySymbol(symbol);
             if (coin != null) {
                 // Обновление цены криптовалюты
                 Double previousPrice = coin.getPrice();
-                coin.setPrice(price);
+//                coin.setPrice(price);
                 coinRepository.save(coin);
+
 
                 // Проверка изменения цены более чем на 1%
                 if (previousPrice != null && Math.abs(price - previousPrice) / previousPrice > 0.01) {
@@ -110,6 +110,7 @@ public class CryptoCurrencyController {
                     }
                 }
             }
+//            CryptoCoin coin1 = new CryptoCoin(id, symbol, price, new Date());
         }
 
     }
