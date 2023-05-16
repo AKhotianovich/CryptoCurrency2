@@ -87,30 +87,31 @@ public class CryptoCurrencyController {
             int id = rootNode.get(i).get("id").asInt();
             String symbol = rootNode.get(i).get("symbol").asText();
             Double price = rootNode.get(i).get("price_usd").asDouble();
-            CryptoCoin coin = new CryptoCoin(id, symbol, price, new Date());
+            CryptoCoin coin1 = new CryptoCoin(id, symbol, price, new Date());
+            coinRepository.save(coin1);
 
             // Поиск криптовалюты в базе данных
-            CryptoCoin coin1 = coinRepository.findBySymbol(symbol);
-            if (coin != null) {
-                // Обновление цены криптовалюты
-                Double previousPrice = coin.getPrice();
-//                coin.setPrice(price);
-                coinRepository.save(coin);
-
-
-                // Проверка изменения цены более чем на 1%
-                if (previousPrice != null && Math.abs(price - previousPrice) / previousPrice > 0.01) {
-                    // Поиск зарегистрированных пользователей для данной криптовалюты
-                    List<UserRegistration> registrations = registrationRepository.findBySymbol(symbol);
-                    for (UserRegistration registration : registrations) {
-                        // Вывод сообщения в лог с информацией о изменении цены
-                        String username = registration.getUsername();
-                        Double percentChange = (price - registration.getInitialPrice()) / registration.getInitialPrice() * 100;
-                        logger.warn("Price change alert - Symbol: {}, User: {}, Percent change: {}", symbol, username, percentChange);
-                    }
-                }
-            }
-//            CryptoCoin coin1 = new CryptoCoin(id, symbol, price, new Date());
+//            CryptoCoin coin = coinRepository.findBySymbol(symbol);
+//            if (coin != null) {
+//                // Обновление цены криптовалюты
+//                Double previousPrice = coin.getPrice();
+////                coin.setPrice(price);
+//                coinRepository.save(coin);
+//
+//
+//                // Проверка изменения цены более чем на 1%
+//                if (previousPrice != null && Math.abs(price - previousPrice) / previousPrice > 0.01) {
+//                    // Поиск зарегистрированных пользователей для данной криптовалюты
+//                    List<UserRegistration> registrations = registrationRepository.findBySymbol(symbol);
+//                    for (UserRegistration registration : registrations) {
+//                        // Вывод сообщения в лог с информацией о изменении цены
+//                        String username = registration.getUsername();
+//                        Double percentChange = (price - registration.getInitialPrice()) / registration.getInitialPrice() * 100;
+//                        logger.warn("Price change alert - Symbol: {}, User: {}, Percent change: {}", symbol, username, percentChange);
+//                    }
+//                }
+//            }
+////            CryptoCoin coin1 = new CryptoCoin(id, symbol, price, new Date());
         }
 
     }

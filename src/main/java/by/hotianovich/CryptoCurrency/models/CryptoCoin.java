@@ -1,13 +1,10 @@
 package by.hotianovich.CryptoCurrency.models;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+
 import java.util.Date;
 
 @Entity
@@ -16,8 +13,9 @@ public class CryptoCoin {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "coin_seq")
+    @SequenceGenerator(name = "coin_seq", sequenceName = "coin_id_seq", allocationSize = 1)
+    private Integer id;
 
     @Column(name = "id_coin")
     private int idCoin;
