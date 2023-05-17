@@ -46,22 +46,22 @@ public class CryptoCurrencyController {
 
     @GetMapping("/cryptocurrencies/{symbol}/price")
     public Double getCoinPrice(@PathVariable String symbol) {
-        CryptoCoin coin = this.coinRepository.findBySymbol(symbol);
+        CryptoCoin coin = this.coinRepository.findFirstBySymbolOrderByUpdateDateDesc(symbol);
         if (coin != null) {
             return coin.getPrice();
         } else {
             // Обработка случая, когда указанная криптовалюта не найдена
-            return null;
+            return 0.00;
         }
     }
 
 
-    @PostMapping("/notify")
-    public String registerForPriceChange(@RequestBody RegistrationRequest request) {
-        CryptoCoin coin = coinRepository.findBySymbol(request.getSymbol());
+    @GetMapping("/notify")
+    public String registerForPriceChange(@RequestParam("username") String username, @RequestParam("symbol") String symbol) {
+        CryptoCoin coin = coinRepository.findFirstBySymbolOrderByUpdateDateDesc(symbol);
         if (coin != null) {
             // Сохраняем информацию о регистрации пользователя
-            UserRegistration registrationUser = new UserRegistration(request.getUsername(), coin.getPrice(), coin.getSymbol());
+            UserRegistration registrationUser = new UserRegistration(username, coin.getPrice(), coin.getSymbol());
             registrationRepository.save(registrationUser);
             return "UserRegistration successful";
         } else {
@@ -79,39 +79,27 @@ public class CryptoCurrencyController {
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String responseBody = response.body();
-        System.out.println(ResponseEntity.ok(responseBody));
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(responseBody);
-        System.out.println(new Date());
+        logger.warn("Price change alert - URL: {}, ", url);
         for (int i = 0; i < 3; i++) {
             int id = rootNode.get(i).get("id").asInt();
             String symbol = rootNode.get(i).get("symbol").asText();
             Double price = rootNode.get(i).get("price_usd").asDouble();
-            CryptoCoin coin1 = new CryptoCoin(id, symbol, price, new Date());
-            coinRepository.save(coin1);
+            CryptoCoin coin = new CryptoCoin(id, symbol, price, new Date());
+            coinRepository.saveAndFlush(coin);
 
-            // Поиск криптовалюты в базе данных
-//            CryptoCoin coin = coinRepository.findBySymbol(symbol);
-//            if (coin != null) {
-//                // Обновление цены криптовалюты
-//                Double previousPrice = coin.getPrice();
-////                coin.setPrice(price);
-//                coinRepository.save(coin);
-//
-//
-//                // Проверка изменения цены более чем на 1%
-//                if (previousPrice != null && Math.abs(price - previousPrice) / previousPrice > 0.01) {
-//                    // Поиск зарегистрированных пользователей для данной криптовалюты
-//                    List<UserRegistration> registrations = registrationRepository.findBySymbol(symbol);
-//                    for (UserRegistration registration : registrations) {
-//                        // Вывод сообщения в лог с информацией о изменении цены
-//                        String username = registration.getUsername();
-//                        Double percentChange = (price - registration.getInitialPrice()) / registration.getInitialPrice() * 100;
-//                        logger.warn("Price change alert - Symbol: {}, User: {}, Percent change: {}", symbol, username, percentChange);
-//                    }
-//                }
-//            }
-////            CryptoCoin coin1 = new CryptoCoin(id, symbol, price, new Date());
+            List<UserRegistration> registrations = registrationRepository.findBySymbol(symbol);
+            for (UserRegistration registration : registrations) {
+                if (Math.abs(price - registration.getInitialPrice()) / registration.getInitialPrice() > 0.01) {
+                    String username = registration.getUsername();
+                    Double initialPrice = registration.getInitialPrice();
+                    Double percentChange = (price - initialPrice) / initialPrice * 100;
+                    logger.warn("Price change alert - Symbol: {}, User: {}, Initial Price: {}, Percent change: {}", symbol, username, initialPrice, percentChange);
+                }
+
+            }
+
         }
 
     }

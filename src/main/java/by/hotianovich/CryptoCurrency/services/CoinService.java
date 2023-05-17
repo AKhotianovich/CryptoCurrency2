@@ -28,7 +28,7 @@ public class CoinService {
     }
 
     public CryptoCoin findOne(String symbol) {
-        Optional<CryptoCoin> foundCoin = Optional.ofNullable(cryptoCoinRepository.findBySymbol(symbol));
+        Optional<CryptoCoin> foundCoin = Optional.ofNullable(cryptoCoinRepository.findFirstBySymbolOrderByUpdateDateDesc(symbol));
         return foundCoin.orElse(null);
     }
 }
