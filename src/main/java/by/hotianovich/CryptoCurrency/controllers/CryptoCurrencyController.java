@@ -1,7 +1,6 @@
 package by.hotianovich.CryptoCurrency.controllers;
 
 import by.hotianovich.CryptoCurrency.models.CryptoCoin;
-import by.hotianovich.CryptoCurrency.models.RegistrationRequest;
 import by.hotianovich.CryptoCurrency.models.UserRegistration;
 import by.hotianovich.CryptoCurrency.repositories.CryptoCoinRepository;
 import by.hotianovich.CryptoCurrency.repositories.RegistrationRepository;
@@ -10,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,7 +48,6 @@ public class CryptoCurrencyController {
         if (coin != null) {
             return coin.getPrice();
         } else {
-            // Обработка случая, когда указанная криптовалюта не найдена
             return 0.00;
         }
     }
@@ -60,17 +57,15 @@ public class CryptoCurrencyController {
     public String registerForPriceChange(@RequestParam("username") String username, @RequestParam("symbol") String symbol) {
         CryptoCoin coin = coinRepository.findFirstBySymbolOrderByUpdateDateDesc(symbol);
         if (coin != null) {
-            // Сохраняем информацию о регистрации пользователя
             UserRegistration registrationUser = new UserRegistration(username, coin.getPrice(), coin.getSymbol());
             registrationRepository.save(registrationUser);
             return "UserRegistration successful";
         } else {
-            // Обработка случая, когда указанная криптовалюта не найдена
             return "Invalid cryptocurrency symbol";
         }
     }
 
-    @Scheduled(fixedRate = 60000) // запускаем метод каждую минуту
+    @Scheduled(fixedRate = 60000)
     public void updateCoinTicker() throws IOException, InterruptedException {
         String url = "https://api.coinlore.net/api/ticker/?id=90,80,48543";
         HttpClient client = HttpClient.newHttpClient();

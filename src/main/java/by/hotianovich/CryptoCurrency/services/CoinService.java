@@ -1,9 +1,7 @@
 package by.hotianovich.CryptoCurrency.services;
 
 import by.hotianovich.CryptoCurrency.models.CryptoCoin;
-import by.hotianovich.CryptoCurrency.models.Person;
 import by.hotianovich.CryptoCurrency.repositories.CryptoCoinRepository;
-import by.hotianovich.CryptoCurrency.repositories.PeopleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
