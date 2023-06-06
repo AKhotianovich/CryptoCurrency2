@@ -88,7 +88,7 @@ public class CryptoCurrencyController {
             for (UserRegistration registration : registrations) {
                 if (Math.abs(price - registration.getInitialPrice()) / registration.getInitialPrice() > 0.01) {
                     String username = registration.getUsername();
-                    Double initialPrice = registration.getInitialPrice();
+                    Double initialPrihhhce = registration.getInitialPrice();
                     Double percentChange = (price - initialPrice) / initialPrice * 100;
                     logger.warn("Price change alert - Symbol: {}, User: {}, Initial Price: {}, Percent change: {}", symbol, username, initialPrice, percentChange);
                 }
